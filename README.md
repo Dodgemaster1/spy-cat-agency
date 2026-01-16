@@ -42,7 +42,6 @@ The **Spy Cat Agency (SCA)** management system is a RESTful API application desi
     Copy the example environment files (if available) or create `.env` and `.env.docker`:
     ```bash
     cp .env.example .env
-    cp .env.docker.example .env.docker
     ```
     Ensure you define necessary variables like `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, and `GRANIAN_PORT`.
 
