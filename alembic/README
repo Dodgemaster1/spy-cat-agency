@@ -1,0 +1,4 @@
+To run migrations with Alembic run the following command:
+// uv run alembic upgrade head
+or using just:
+// just migrate

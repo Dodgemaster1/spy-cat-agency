@@ -1,0 +1,66 @@
+x-base_app:
+  &base_app
+  build: .
+  env_file:
+    - ".env"
+  environment:
+    POSTGRES_HOST: db
+    POSTGRES_PORT: 5432
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  web:
+    <<: *base_app
+    ports:
+      - "${GRANIAN_PORT}:${GRANIAN_PORT}"
+    command: ["just", "start"]
+    networks:
+      - postgres_network
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+
+    develop:
+      watch:
+        - action: sync+restart
+          path: .
+          target: /app
+          ignore:
+            - .venv/
+
+        - action: rebuild
+          path: ./uv.lock
+
+
+  migrations:
+    <<: *base_app
+    networks:
+      - postgres_network
+    command: ["just", "migrate"]
+
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    shm_size: 128mb
+    env_file:
+      - ".env"
+    networks:
+      - postgres_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -d db -U admin
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+volumes:
+  postgres_data:
+
+networks:
+  postgres_network:
+    driver: bridge
